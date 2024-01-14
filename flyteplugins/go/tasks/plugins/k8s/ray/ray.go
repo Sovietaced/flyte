@@ -48,7 +48,8 @@ var logTemplateRegexes = struct {
 	tasklog.MustCreateRegex("rayJobID"),
 }
 
-type rayJobResourceHandler struct{}
+type rayJobResourceHandler struct {
+}
 
 func (rayJobResourceHandler) GetProperties() k8s.PluginProperties {
 	return k8s.PluginProperties{}
@@ -142,8 +143,7 @@ func constructV1Alpha1Job(taskCtx pluginsCore.TaskExecutionContext, rayJob plugi
 			EnableIngress:  &enableIngress,
 			RayStartParams: headNodeRayStartParams,
 		},
-		WorkerGroupSpecs:        []rayv1alpha1.WorkerGroupSpec{},
-		EnableInTreeAutoscaling: &rayJob.RayCluster.EnableAutoscaling,
+		WorkerGroupSpecs: []rayv1alpha1.WorkerGroupSpec{},
 	}
 
 	for _, spec := range rayJob.RayCluster.WorkerGroupSpec {
@@ -154,6 +154,16 @@ func constructV1Alpha1Job(taskCtx pluginsCore.TaskExecutionContext, rayJob plugi
 			objectMeta,
 			taskCtx,
 		)
+
+		minReplicas := spec.Replicas
+		maxReplicas := spec.Replicas
+		if spec.MinReplicas != 0 {
+			minReplicas = spec.MinReplicas
+		}
+
+		if spec.MaxReplicas != 0 {
+			maxReplicas = spec.MaxReplicas
+		}
 
 		workerNodeRayStartParams := make(map[string]string)
 		if spec.RayStartParams != nil {
@@ -168,15 +178,6 @@ func constructV1Alpha1Job(taskCtx pluginsCore.TaskExecutionContext, rayJob plugi
 
 		if _, exists := workerNodeRayStartParams[DisableUsageStatsStartParameter]; !exists && !cfg.EnableUsageStats {
 			workerNodeRayStartParams[DisableUsageStatsStartParameter] = DisableUsageStatsStartParameterVal
-		}
-
-		minReplicas := spec.MinReplicas
-		if minReplicas > spec.Replicas {
-			minReplicas = spec.Replicas
-		}
-		maxReplicas := spec.MaxReplicas
-		if maxReplicas < spec.Replicas {
-			maxReplicas = spec.Replicas
 		}
 
 		workerNodeSpec := rayv1alpha1.WorkerGroupSpec{
@@ -198,18 +199,11 @@ func constructV1Alpha1Job(taskCtx pluginsCore.TaskExecutionContext, rayJob plugi
 		rayClusterSpec.WorkerGroupSpecs[index].Template.Spec.ServiceAccountName = serviceAccountName
 	}
 
-	shutdownAfterJobFinishes := cfg.ShutdownAfterJobFinishes
-	ttlSecondsAfterFinished := &cfg.TTLSecondsAfterFinished
-	if rayJob.ShutdownAfterJobFinishes {
-		shutdownAfterJobFinishes = true
-		ttlSecondsAfterFinished = &rayJob.TtlSecondsAfterFinished
-	}
-
 	jobSpec := rayv1alpha1.RayJobSpec{
 		RayClusterSpec:           &rayClusterSpec,
 		Entrypoint:               strings.Join(primaryContainer.Args, " "),
-		ShutdownAfterJobFinishes: shutdownAfterJobFinishes,
-		TTLSecondsAfterFinished:  ttlSecondsAfterFinished,
+		ShutdownAfterJobFinishes: cfg.ShutdownAfterJobFinishes,
+		TTLSecondsAfterFinished:  &cfg.TTLSecondsAfterFinished,
 		RuntimeEnv:               rayJob.RuntimeEnv,
 	}
 
@@ -753,7 +747,7 @@ func (plugin rayJobResourceHandler) GetTaskPhaseV1Alpha1(ctx context.Context, pl
 	}
 
 	if len(rayJob.Status.JobDeploymentStatus) == 0 {
-		return pluginsCore.PhaseInfoQueued(time.Now(), pluginsCore.DefaultPhaseVersion, "Scheduling"), nil
+		return pluginsCore.PhaseInfoQueuedWithTaskInfo(time.Now(), pluginsCore.DefaultPhaseVersion, "Scheduling", info), nil
 	}
 
 	// KubeRay creates a Ray cluster first, and then submits a Ray job to the cluster
