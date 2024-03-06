@@ -5743,6 +5743,9 @@ export namespace flyteidl {
 
             /** TaskLog ShowWhilePending */
             ShowWhilePending?: (boolean|null);
+
+            /** TaskLog HideOnceFinished */
+            HideOnceFinished?: (boolean|null);
         }
 
         /** Represents a TaskLog. */
@@ -5768,6 +5771,9 @@ export namespace flyteidl {
 
             /** TaskLog ShowWhilePending. */
             public ShowWhilePending: boolean;
+
+            /** TaskLog HideOnceFinished. */
+            public HideOnceFinished: boolean;
 
             /**
              * Creates a new TaskLog instance using the specified properties.
