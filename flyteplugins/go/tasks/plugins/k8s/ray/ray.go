@@ -685,11 +685,22 @@ func getEventInfoForRayJobV1(logConfig logs.LogConfig, pluginContext k8s.PluginC
 
 func (plugin rayJobResourceHandler) GetTaskPhase(ctx context.Context, pluginContext k8s.PluginContext, resource client.Object) (pluginsCore.PhaseInfo, error) {
 	crdVersion := GetConfig().KubeRayCrdVersion
+
+	var phaseInfo pluginsCore.PhaseInfo
+	var err error
 	if crdVersion == "v1" {
-		return plugin.GetTaskPhaseV1(ctx, pluginContext, resource)
+		phaseInfo, err = plugin.GetTaskPhaseV1(ctx, pluginContext, resource)
+	} else {
+		phaseInfo, err = plugin.GetTaskPhaseV1Alpha1(ctx, pluginContext, resource)
+
 	}
 
-	return plugin.GetTaskPhaseV1Alpha1(ctx, pluginContext, resource)
+	phaseVersionUpdateErr := k8s.MaybeUpdatePhaseVersionFromPluginContext(&phaseInfo, &pluginContext)
+	if phaseVersionUpdateErr != nil {
+		return pluginsCore.PhaseInfoUndefined, phaseVersionUpdateErr
+	}
+
+	return phaseInfo, err
 }
 
 func (plugin rayJobResourceHandler) GetTaskPhaseV1(ctx context.Context, pluginContext k8s.PluginContext, resource client.Object) (pluginsCore.PhaseInfo, error) {
