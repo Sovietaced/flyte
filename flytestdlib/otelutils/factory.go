@@ -7,11 +7,14 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 	rawtrace "go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 
 	"github.com/flyteorg/flyte/flytestdlib/contextutils"
 	"github.com/flyteorg/flyte/flytestdlib/version"
@@ -30,9 +33,9 @@ const (
 )
 
 var tracerProviders = make(map[string]*trace.TracerProvider)
-var noopTracerProvider = rawtrace.NewNoopTracerProvider()
+var noopTracerProvider = noop.NewTracerProvider()
 
-func RegisterTracerProvider(serviceName string, config *Config) error {
+func RegisterTracerProvider(ctx context.Context, serviceName string, config *Config) error {
 	if config == nil {
 		return nil
 	}
@@ -68,6 +71,22 @@ func RegisterTracerProvider(serviceName string, config *Config) error {
 			return err
 		}
 
+		opts = append(opts, trace.WithBatcher(exporter))
+	case OtlpGrpcExporter:
+		// Pull configuration from environment variables
+		// https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
+		exporter, err := otlptracegrpc.New(ctx)
+		if err != nil {
+			return err
+		}
+		opts = append(opts, trace.WithBatcher(exporter))
+	case OtlpHTTPExporter:
+		// Pull configuration from environment variables
+		// https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
+		exporter, err := otlptracehttp.New(ctx)
+		if err != nil {
+			return err
+		}
 		opts = append(opts, trace.WithBatcher(exporter))
 	default:
 		return fmt.Errorf("unknown otel exporter type [%v]", config.ExporterType)

@@ -14,9 +14,11 @@ const configSectionKey = "otel"
 type ExporterType = string
 
 const (
-	NoopExporter   ExporterType = "noop"
-	FileExporter   ExporterType = "file"
-	JaegerExporter ExporterType = "jaeger"
+	NoopExporter     ExporterType = "noop"
+	FileExporter     ExporterType = "file"
+	JaegerExporter   ExporterType = "jaeger"
+	OtlpGrpcExporter ExporterType = "otlpGrpc"
+	OtlpHTTPExporter ExporterType = "otlpHttp"
 )
 
 var (
@@ -33,7 +35,7 @@ var (
 )
 
 type Config struct {
-	ExporterType ExporterType `json:"type" pflag:",Sets the type of exporter to configure [noop/file/jaeger]."`
+	ExporterType ExporterType `json:"type" pflag:",Sets the type of exporter to configure [noop/file/jaeger/otlpGrpc/otlpHttp]."`
 	FileConfig   FileConfig   `json:"file" pflag:",Configuration for exporting telemetry traces to a file"`
 	JaegerConfig JaegerConfig `json:"jaeger" pflag:",Configuration for exporting telemetry traces to a jaeger"`
 }
