@@ -23,10 +23,6 @@ linters:
     rules:
       - path: (.+)\.go$
         text: copylocks
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
 formatters:
   enable:
     - gci
@@ -40,7 +36,3 @@ formatters:
       custom-order: true
   exclusions:
     generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$

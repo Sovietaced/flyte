@@ -26,10 +26,6 @@ linters:
       - linters:
           - goconst
         path: (.+)_test\.go
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
 formatters:
   enable:
     - gci
@@ -43,7 +39,3 @@ formatters:
       custom-order: true
   exclusions:
     generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
