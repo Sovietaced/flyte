@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/alvaroloes/enumer v1.1.2
-	github.com/flyteorg/flyte/flytestdlib v1.11.0
+	github.com/flyteorg/flyte/flytestdlib v0.0.0-00010101000000-000000000000
 	github.com/golangci/golangci-lint/v2 v2.6.2
 	github.com/pseudomuto/protoc-gen-doc v1.4.1
 	github.com/vektra/mockery/v2 v2.53.5
