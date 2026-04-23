@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	pgconn "github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/magiconair/properties/assert"
 	"google.golang.org/grpc/codes"
 

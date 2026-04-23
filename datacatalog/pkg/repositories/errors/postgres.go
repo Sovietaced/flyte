@@ -4,7 +4,7 @@ import (
 	"errors"
 	"reflect"
 
-	pgconn "github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgconn"
 	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 
