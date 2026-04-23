@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jackc/pgconn"
+	pgconn "github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
 )
 
