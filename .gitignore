@@ -1,3 +1,4 @@
+.kube/
 .idea
 _build/
 _bin/
@@ -27,7 +28,7 @@ dist/
 dist
 *.db
 vendor/
-/docker/sandbox-bundled/images/tar
+/docker/devbox-bundled/images/tar
 **/bin/
 docs/_tags/
 docs/api/flytectl
@@ -39,3 +40,11 @@ docs/_src
 docs/_projects
 docs/tests
 empty-config.yaml
+
+**/rust/target
+**/rust/Cargo.lock
+**/flyteidl_new.egg-info
+**/flyteidl.egg-info
+**/flyteidl2.egg-info
+node_modules
+.claude/
