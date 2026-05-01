@@ -92,7 +92,7 @@ func TestResourceCache_SyncResource(t *testing.T) {
 		newCacheItem, err := q.SyncResource(ctx, []autorefreshcache.ItemWrapper{iw})
 		assert.NoError(t, err)
 		assert.Equal(t, autorefreshcache.Update, newCacheItem[0].Action)
-		cacheItem.State.Phase = PhaseSystemFailure
+		cacheItem.Phase = PhaseSystemFailure
 		assert.Equal(t, cacheItem, newCacheItem[0].Item)
 	})
 
